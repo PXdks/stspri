@@ -6,6 +6,7 @@ import com.example.test.entity.Admin;
 import com.example.test.mapper.AdminMapper;
 
 import com.example.test.service.AdminService;
+import com.example.test.utils.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,13 +38,16 @@ public class AdminController {
     }
     //利用QueryWrapper实现登录验证
    @PostMapping("/log")
-    public boolean login(@RequestBody Admin admin)
+    public Admin login(@RequestBody Admin admin)
    {
        QueryWrapper<Admin> queryWrapper=new QueryWrapper<>();
        queryWrapper.eq("username",admin.getUsername());
        queryWrapper.eq("password",admin.getPassword());
+    
        Admin one= adminService.getOne(queryWrapper);
-       return one!=null;
+       String token= TokenUtils.genToken(one.getId().toString(),one.getPassword());
+       one.setToken(token);
+       return one;
        //若查询出多个记录，取其一即可通过
 //       List<Admin> list=adminService.list(queryWrapper);
 //       return list.size()!=0;
